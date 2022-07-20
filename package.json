@@ -1,0 +1,24 @@
+{
+  "name": "neata-server",
+  "version": "1.0.0",
+  "description": "a server for neata-cleaning",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mystiexx/neata-server.git"
+  },
+  "author": "enola",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mystiexx/neata-server/issues"
+  },
+  "homepage": "https://github.com/mystiexx/neata-server#readme",
+  "dependencies": {
+    "dotenv": "^16.0.1",
+    "express": "^4.18.1",
+    "mailgun-js": "^0.22.0"
+  }
+}
