@@ -22,7 +22,7 @@ app.post("/email", urlencodedParser,  (req, res) => {
     .messages()
     .send(
       {
-        from: "aloneroland@gmail.com",
+        from: "Roland Enola <aloneroland@gmail.com>",
         to: `${email}`,
         subject: `${subject}`,
         html: `<p>${message}</p>`,
