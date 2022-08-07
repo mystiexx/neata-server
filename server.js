@@ -5,6 +5,7 @@ const Mailgun = require("mailgun.js")
 const mailgun = new Mailgun(formData)
 const bodyParser = require("body-parser")
 const cors = require("cors")
+const { validateEmailBody } = require("./validation")
 dotenv.config()
 const mg = mailgun.client({
 	username: "api",
@@ -25,15 +26,20 @@ app.use((req, res, next) => {
 	}
 	next()
 })
-app.post("/email", (req, res) => {
+app.post("/email", async (req, res) => {
 	const { email, subject, message } = req.body
+	try {
+		await validateEmailBody(req.body)
+	} catch (err) {
+		return res.status(400).json({ status: "error", statusCode: 400, message: err.errors[0] })
+	}
 
 	mg?.messages
 		?.create(process.env.MAILGUN_DOMAIN || "", {
 			from: "Roland Enola <festusalabo@gmail.com>",
 			to: [`${email}`],
 			subject: `${subject}`,
-			text: "Testing some Mailgun awesomness!",
+			text: `${message}`,
 			html: `<h1>${message}</h1>`
 		})
 		.then(msg => res.send(msg))
