@@ -1,46 +1,47 @@
-const express = require("express");
-const dotenv = require("dotenv");
-const mg = require("mailgun-js");
-const bodyParser = require('body-parser')
+const express = require("express")
+const dotenv = require("dotenv")
+const formData = require("form-data")
+const Mailgun = require("mailgun.js")
+const mailgun = new Mailgun(formData)
+const bodyParser = require("body-parser")
+const cors = require("cors")
+dotenv.config()
+const mg = mailgun.client({
+	username: "api",
+	key: process.env.MAILGUN_API_KEY || ""
+})
 
-dotenv.config();
+const app = express()
 
-const mailgun = () => {
-  mg({
-    apiKey: process.env.MAILGUN_API_KEY,
-    domain: process.env.MAILGUN_DOMAIN,
-  });
-};
+app.use(bodyParser.urlencoded({ extended: true }))
+app.use(bodyParser.json())
+app.use(cors())
+app.use((req, res, next) => {
+	res.header("Access-Control-Allow-Origin", "*")
+	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept")
+	if (req.method === "OPTIONS") {
+		res.header("Access-Control-Allow-Methods", "PUT, POST, PATCH, DELETE, GET")
+		return res.status(200).json({})
+	}
+	next()
+})
+app.post("/email", (req, res) => {
+	const { email, subject, message } = req.body
 
-const app = express();
-app.use = express.json();
-const urlencodedParser = bodyParser.urlencoded({ extended: false })
+	mg?.messages
+		?.create(process.env.MAILGUN_DOMAIN || "", {
+			from: "Roland Enola <festusalabo@gmail.com>",
+			to: [`${email}`],
+			subject: `${subject}`,
+			text: "Testing some Mailgun awesomness!",
+			html: `<h1>${message}</h1>`
+		})
+		.then(msg => res.send(msg))
+		.catch(err => res.send(err))
+})
 
-app.post("/email", urlencodedParser,  (req, res) => {
-  const { email, subject, message } = req.body;
-  mailgun()
-    .messages()
-    .send(
-      {
-        from: "Roland Enola <aloneroland@gmail.com>",
-        to: `${email}`,
-        subject: `${subject}`,
-        html: `<p>${message}</p>`,
-      },
-      (error, body) => {
-        if (error) {
-          console.log(error);
-          res.status(500).send({ message: "Error in sending email" });
-        } else {
-          console.log(body);
-          res.send({ message: "Email sent successfully" });
-        }
-      }
-    );
-});
-
-const port = process.env.PORT || 4000;
+const port = process.env.PORT || 4000
 
 app.listen(port, () => {
-  console.log(`serve at http://localhost:${port}`);
-});
+	console.log(`serve at http://localhost:${port}`)
+})
